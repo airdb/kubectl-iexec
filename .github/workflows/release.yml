@@ -1,0 +1,72 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v1
+      - name: Use Golang
+        uses: actions/setup-go@v1
+        with:
+          go-version: "1.13.x"
+
+      - name: Test
+        run: echo go test -v .
+
+      - name: Bump version and push tag
+        id: bump_version
+        uses: anothrNick/github-tag-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+
+      - name: Build
+        run: |
+          timeNow=$(date +%s)
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o kubectl-iexec-linux kubectl-iexec.go
+          CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o kubectl-iexec-darwin kubectl-iexec.go
+          CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o kubectl-iexec.exec kubectl-iexec.go
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.bump_version.outputs.tag }}
+          release_name: Release ${{ steps.bump_version.outputs.tag }}
+          body: |
+            Changes in this Release
+            - First Change
+            - Second Change
+          draft: false
+          prerelease: false
+
+      - name: Upload Release normal linux binary
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./kubectl-iexec-linux
+          asset_name: kubectl-iexec
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release normal darwin binary
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./kubectl-iexec-darwin
+          asset_name: kubectl-iexec-darwin
+          asset_content_type: application/octet-stream
