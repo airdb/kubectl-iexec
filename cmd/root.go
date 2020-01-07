@@ -41,10 +41,10 @@ that the user can select from. Subsequent args make up the array of commands tha
 should be executed on the pod.
 
 example:
-kubectl iexec busybox /bin/sh
+kubectl iexec toolbox /bin/bash
 
 example:
-kubectl iexec busybox cat /etc/hosts
+kubectl iexec toolbox cat /etc/hosts
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		r := iexec{}
@@ -70,7 +70,7 @@ kubectl iexec busybox cat /etc/hosts
 			s := len(args)
 			r.remoteCmd = append(r.remoteCmd, args[1:s]...)
 		} else {
-			r.remoteCmd = []string{"/bin/sh"}
+			r.remoteCmd = []string{"/bin/bash"}
 		}
 
 		if container != "" {

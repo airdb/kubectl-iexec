@@ -48,7 +48,7 @@ Flags:
 To install the plugin, the binary simply needs to be somewhere on your path in the format kubectl-[plugin_name]. 
 
 ```
-https://github.com/airdb/adb/releases/latest/download/adb
-https://github.com/airdb/adb/releases/latest/download/adb-darwin
+https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec
+https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec-darwin
 ```
 
